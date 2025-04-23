@@ -15,46 +15,20 @@ pipeline {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'select action')
     }
     stages {
-        stage('Init') {
+        stage('Init and Plan') {
             steps {
-              sh """
-                  cd 00-vpc
-                  terraform init -reconfigure
+              withAWS(region: 'us-east-1', credentials: 'aws-creds'){
+                sh """
+                    cd 00-vpc
+                    terraform init -reconfigure
+                    terraform plan -out=tfplan
                 """    
-            }
+             }
+           }
         }
-        stage('Plan') {
-            steps {
-                sh 'cd 00-vpc'
-                withAWS(region: 'us-east-1', credentials: 'aws-creds'){
-                   sh 'terraform plan -out=tfplan'
-                }   
-            }
-        }    
-        stage('Deploy') {
-             when {
-                expression { env.GIT_BRANCH== 'origin/main' } //it's working for deployment
-            }
-            steps {
-                sh 'echo this is Deploy'
-                //error 'pipeline failed'
-            }
-        }
-        //parameters stage
-        stage('Print Params') {
-
-            steps {
-                echo "Hello ${params.PERSON}"
-                echo "Biography: ${params.BIOGRAPHY}"
-                echo "TOGGLE: ${params.TOGGLE}"
-                echo "CHOICE: ${params.CHOICE}"
-                echo "PASSWORD: ${params.PASSWORD}"
-            }
-        }
-
     }
 
-    post{
+     post{
       always{
         echo "This action run always"
         deleteDir()
