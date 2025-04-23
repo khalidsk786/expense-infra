@@ -1,0 +1,70 @@
+pipeline {
+    agent {
+        label 'AGENT-1'
+    }
+    options{
+        // Timeout counter starts AFTER agent is allocated
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        //retry(1)
+    }
+        //parameters
+      parameters {
+        
+        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'select action')
+    }
+    stages {
+        stage('Init') {
+            steps {
+              sh 'cd 00-vpc'
+              sh 'terraform init --reconfigure'
+            }
+        }
+        stage('Plan') {
+            steps {
+                sh 'cd 00-vpc'
+                withAWS(region: 'us-east-1', credentials: 'aws-creds'){
+                   sh 'terraform plan -out=tfplan'
+                }   
+            }
+        }    
+        stage('Deploy') {
+             when {
+                expression { env.GIT_BRANCH== 'origin/main' } //it's working for deployment
+            }
+            steps {
+                sh 'echo this is Deploy'
+                //error 'pipeline failed'
+            }
+        }
+        //parameters stage
+        stage('Print Params') {
+
+            steps {
+                echo "Hello ${params.PERSON}"
+                echo "Biography: ${params.BIOGRAPHY}"
+                echo "TOGGLE: ${params.TOGGLE}"
+                echo "CHOICE: ${params.CHOICE}"
+                echo "PASSWORD: ${params.PASSWORD}"
+            }
+        }
+
+    }
+
+    post{
+      always{
+        echo "This action run always"
+        deleteDir()
+      }
+
+      success{
+  
+         echo "This section run when pipeline success"
+      }
+
+      failure{
+          echo "This action run when pipeline failure"
+
+      }
+    }
+}
