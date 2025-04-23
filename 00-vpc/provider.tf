@@ -12,7 +12,7 @@ terraform {
     bucket         = "khalid82s-remote-state1"
     key            = "expense-vpc-cicd" #you should change this to a unique name same key can't be used by multiple users
     region         = "us-east-1"
-    dynamodb_table = "khalid82s-remote-state1"
+    dynamodb_table = "use_lockfile"
   }
 }
 
