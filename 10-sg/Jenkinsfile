@@ -22,7 +22,7 @@ pipeline {
             steps {
               withAWS(region: 'us-east-1', credentials: 'aws-creds'){
                 sh """
-                    cd 00-vpc
+                    cd 10-sg
                     terraform init -reconfigure
                     terraform plan -out=tfplan
                 """    
@@ -40,7 +40,7 @@ pipeline {
 
               withAWS(region: 'us-east-1', credentials: 'aws-creds'){
                 sh """
-                    cd 00-vpc
+                    cd 10-sg
                     if [ ${params.ACTION} == "apply" ];
                     then
                         terraform apply -auto-approve tfplan
@@ -52,9 +52,6 @@ pipeline {
                 """
              }
            }
-        }
-        stage ('Trigger SG') {
-            build job: '10-sg', parameters: [[$class: 'StringParameterValue', name: 'ACTION', value: apply]]
         }
     }
 
