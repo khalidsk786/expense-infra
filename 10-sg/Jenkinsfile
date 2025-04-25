@@ -104,7 +104,7 @@ pipeline {
                 }
                 stage('ALB') {
                     steps {
-                        build job: '60-alb', parameters: [string(name: 'ACTION', value: "apply")], wait: false
+                        build job: '60-ingress-alb', parameters: [string(name: 'ACTION', value: "apply")], wait: false
                     }
                 }
                 stage('CDN') {
