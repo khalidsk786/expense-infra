@@ -22,7 +22,7 @@ pipeline {
             steps {
               withAWS(region: 'us-east-1', credentials: 'aws-creds'){
                 sh """
-                    cd 20-bastion
+                    cd 80-cdn
                     terraform init -reconfigure
                     terraform plan -out=tfplan
                 """    
@@ -40,7 +40,7 @@ pipeline {
 
               withAWS(region: 'us-east-1', credentials: 'aws-creds'){
                 sh """
-                    cd 20-bastion
+                    cd 80-cdn
                     if [ ${params.ACTION} == "apply" ];
                     then
                         terraform apply -auto-approve tfplan
@@ -53,8 +53,27 @@ pipeline {
              }
            }
         }
-
-         
+         stage('Destroy'){
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps{
+                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
+                    script {
+                        def directories = ['80-cdn', '70-ecr', '60-ingress-alb', '50-acm', '40-eks', '30-rds', '20-bastion', '10-sg', '00-vpc']
+                        for (dir in directories) {
+                            echo "Destroying resources in directory: ${dir}"
+                            sh """
+                            cd ${dir}
+                            terraform init -reconfigure
+                            terraform destroy -auto-approve || { echo "Failed to destroy resources in ${dir}"; exit 1; }
+                            cd ..
+                            """
+                        }
+            }
+                }
+            }
+        }
     }
 
      post{

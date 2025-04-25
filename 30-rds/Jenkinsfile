@@ -22,7 +22,7 @@ pipeline {
             steps {
               withAWS(region: 'us-east-1', credentials: 'aws-creds'){
                 sh """
-                    cd 20-bastion
+                    cd 30-rds
                     terraform init -reconfigure
                     terraform plan -out=tfplan
                 """    
@@ -40,7 +40,7 @@ pipeline {
 
               withAWS(region: 'us-east-1', credentials: 'aws-creds'){
                 sh """
-                    cd 20-bastion
+                    cd 30-rds
                     if [ ${params.ACTION} == "apply" ];
                     then
                         terraform apply -auto-approve tfplan
@@ -54,7 +54,14 @@ pipeline {
            }
         }
 
-         
+        //  stage ('Destroy VPC') {
+        //     when {
+        //         expression { params.ACTION == 'destroy' }
+        //     }
+        //     steps{
+        //         build job: '00-vpc', parameters: [string(name: 'ACTION', value: "destroy")], wait: false
+        //     }
+        // }
     }
 
      post{

@@ -31,10 +31,10 @@ pipeline {
         }
 
         stage('Apply and Destroy') {
-            input {
-                message "Should we continue? to ${params.ACTION}"
-                ok "Yes, we should."
-            }
+            // input {
+            //     message "Should we continue? to ${params.ACTION}"
+            //     ok "Yes, we should."
+            // }
 
             steps {
 

@@ -37,14 +37,14 @@ resource "aws_lb_listener" "https" {
 }
 
 resource "aws_route53_record" "web_alb" {
-  zone_id = var.zone_id
-  name    = "expense-${var.environment}-1.${var.domain_name}"
+  zone_id = var.zone_id //khalidaws82.tech
+  name    = "expense-${var.environment}-1.${var.domain_name}" # *.app-dev
   type    = "A"
 
  # these are ALB DNS name and zone information
   alias   {
     name                   = module.alb.dns_name
-    zone_id                = module.alb.zone_id
+    zone_id                = module.alb.zone_id # this belongs to alb internal hosted zone,not ours
     evaluate_target_health = false
     }
 }
@@ -60,7 +60,7 @@ resource "aws_lb_listener_rule" "frontend" {
 
   condition {
     host_header {
-      values = ["expense-${var.environment}-1.${var.domain_name}"]
+      values = ["expense-${var.environment}-1.${var.domain_name}"] 
     }
   }
 }
