@@ -1,6 +1,6 @@
 resource "aws_key_pair" "eks" {
   key_name   = "expense-eks"
-  public_key = file("C:\\Devops_Aws2025\\daws-82s\\eks.pub")
+  public_key = file("C:\\Devops_Aws2025\\eks.pub")
   }
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
